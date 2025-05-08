@@ -1,8 +1,148 @@
-import {BrowserRouter as Router , Route, Routes} from 'react-router-dom';
-import { useEffect,useState,createContext,useContext} from 'react';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {useEffect,useState,createContext,useContext} from 'react';
 import axios from 'axios';
+import App from './App';
 import Signup from './Signup';
 import Login from './Login';
 import Profile from './Profile';
-import LandingPage from './LandingPage';
+import AddBlog from './AddBlog';
+import UpdateBlog from './updateBlog';
+import DeleteBlog from './deleteBlog';
+// import LandingPage from './LandingPage';
+axios.defaults.withCredentials = true;
 
+// createContext() creates a context object that lets data travel from the parent component to children component without manually passing props at every level,
+// createContext() gives us access to a provider and this provider lets you provide the context value to components
+const AuthContext = createContext();
+
+// this is our provider function
+export function AuthProvider({children}){
+    const [author,setAuthor] = useState(null);
+    const [blogs,setBlogs] = useState([]);
+    // authorId state holds the id of the person who is logged in
+    const [authorId,setAuthorId] = useState(null);
+
+    // deletion confirmed
+    const [deleted,setDeleted] = useState(false);
+
+    // the state interId and setInterId is being created with the intention of passing the id of the blog being interacted with to different components
+    const [interId,setInterId] = useState(null);
+    
+    const [loading,setLoading] = useState(true);
+
+    // here i will be trying to access the profile of the user who is logged-in
+    const profile = async () => {
+
+        try{
+            
+            console.log("calling the /api/profile")
+
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/profile`,{withCredentials:true})
+
+            console.log(author)
+            console.log(response.data)
+            console.log("/api/profile response",response.data.author);
+            // console.log("all the blogs by the author",response.data.blogs)
+            setAuthor(response.data.author.authorname)
+            setAuthorId(response.data.author._id)
+            setBlogs(response.data.blogs)
+        }catch(err){
+            console.error(err)
+        }finally{
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        profile()
+    },[])
+
+    const login = async (credentials) => {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,credentials,{withCredentials:true});
+        console.log("response sent when logged in...",response);
+        console.log("authorname",response.data.Author._id)
+        setAuthor(response.data.Author.authorname)
+        setAuthorId(response.data.Author._id)
+    }
+
+    const updateBlog = async (blogId,formData) => {
+        try{
+            const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/blog/${blogId}`,formData,{withCredentials:true});
+            console.log(response);
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const deleteBlog = async (blogId) => {
+        try{
+            if(deleted){
+                const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/blog/${blogId}`);
+                console.log(response);
+            }
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    const likeBlog = async (blogId) => {
+        try{
+
+            // setLikedBlogs((prev) => new Set(prev).add(blogId));
+            // the request toggles the like and unlike, refer to the backend logic for liking a blog(index.js(server))
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/blog/${blogId}/like`,{withCredentials:true});
+            console.log(response);
+
+            return response;
+
+            // console.log(liked);
+
+        }catch(err){
+            console.error(err);
+            response.status(500).json({msg:"internal server error.."})
+        }
+    }
+
+    const bookmarkBlog = async (blogId) => {
+        try{
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/blog/${blogId}/bookmark`,{withCredentials:true});
+            console.log(response);
+            return response;
+        }catch(err){
+            console.error(err);
+        }
+    }
+
+    return (
+        // this provider provided by the context AuthContext helps us to make the value of user state and login function available to component which calls useContext(AuthContext), the components being represented by children
+
+        <AuthContext.Provider value={{author,authorId,login,profile,updateBlog,deleteBlog,blogs,interId,setInterId,deleted,setDeleted,likeBlog,bookmarkBlog}}>
+            {!loading && children}
+        </AuthContext.Provider>
+    )
+}
+
+// here useAuth is a custom hook, we are using it to export our context "authContext"
+// then from any other component we can import the functions,states exported by the AuthProvider function 
+// with a very simple syntax const {login,user} = useAuth();
+export function useAuth(){
+    return useContext(AuthContext);
+}
+
+export default function Root(){
+     return (
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    <Route path='/' element={<App/>} />
+                    <Route path='/login' element={<Login/>} />
+                    <Route path='/signup' element={<Signup/>} />
+                    <Route path='/profile' element={<Profile/>}/>
+                    <Route path='/add-blog' element={<AddBlog/>} />
+                    <Route path='/update-blog' element={<UpdateBlog/>} />
+                    <Route path='/delete-blog' element={<DeleteBlog/>} />
+                </Routes>
+            </Router>
+        </AuthProvider>
+    )
+}

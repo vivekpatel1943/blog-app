@@ -23,11 +23,15 @@ const BlogSchema = new mongoose.Schema({
         type:Date,
         default:Date.now()
     },
-    InteractionsId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'interactions',
-        
+    LikedBy: {
+        type: Array,
+        deafault: []
     }
+    // InteractionsId:{
+    //     type:mongoose.Schema.Types.ObjectId,
+    //     ref:'interactions',
+        
+    // }
 })
 
 export default mongoose.model("Blogs",BlogSchema,'Blog-collections')

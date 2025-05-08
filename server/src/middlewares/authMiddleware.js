@@ -5,7 +5,12 @@ import jwt from 'jsonwebtoken';
 const authMiddleware = (req,res,next) => {
     
     // by convention ,browsers send the token in the Authorization  header, that's what we are accessing 
-    const token = req.header('Authorization');
+    // const token = req.header('Authorization');
+    
+    //if the browser is using cookies to send the tokens for authentication,we can access the tokens simply with req.cookies.token  
+    const token = req.cookies.token;
+
+    console.log(req.cookies)
 
     console.log(token);
 
@@ -15,7 +20,7 @@ const authMiddleware = (req,res,next) => {
 
     try{
         // you need your jwt_secret to create and verify your token
-        // jwt verification is important to ensure that the token being sent is not expires and has not tampered with
+        // jwt verification is important to ensure that the token being sent is not expired and has not been tampered with
         // jwt validation checks the structure , claims and signature to ensure the least amount of risk
         const decoded = jwt.verify(token,process.env.jwt_secret);
 
@@ -26,8 +31,10 @@ const authMiddleware = (req,res,next) => {
         console.log(decoded)
 
         // adding the decoded author data in the token to the request body
-        // this consists of {userId: "6512ad87b4e7f5d5e92eae91"(MongoDB user ID), iat: 1711711717(Issued At Time (UNIX timestamp)),exp: 1711715317  (Expiry Time (UNIX timestamp))
+        // this consists of {authorId: "6512ad87b4e7f5d5e92eae91"(MongoDB user ID), iat: 1711711717(Issued At Time (UNIX timestamp)),exp: 1711715317  (Expiry Time (UNIX timestamp))
         req.author = decoded;
+
+        console.log(req.author)
 
         next(); //this just passes all the data to the next middleware        
     }catch(err){

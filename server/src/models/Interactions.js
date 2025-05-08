@@ -1,7 +1,7 @@
 import mongoose, { Mongoose } from 'mongoose';
 
 /* 
-    we are simply saving the interactions of the users with a certain blog , the structure keeps the blog at the center and whenever a user likes a blog-post or comments to a blog-post or bookmarks a blog-post , we push them in our likedBy-array or bookmarkedBy-array or commented-By array
+    we are simply saving the interactions of the users with a certain blog , the structure keeps the blog at the center and whenever a user likes a blog-post or comments to a blog-post or bookmarks a blog-post , we push the credentials of those users to our likedBy-array or bookmarkedBy-array or commented-By array depending on if the user has liked , commented or bookmarked the array, 
 
     *note : notice that likedBy bookmarkedBy and commentedBy are arrays
 */

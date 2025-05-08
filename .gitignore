@@ -1,0 +1,10 @@
+# ignore node_modules , .env , package-lock.json from server folder
+server/node_modules
+server/.env
+
+# ignore node_modules , .env , package-lock.json from client folder
+client/node_modules
+client/.env
+
+# ignore all log files anywhere
+*.md

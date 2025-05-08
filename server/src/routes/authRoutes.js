@@ -3,9 +3,12 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Authors from '../models/Authors.js';
 import dotenv from 'dotenv';
+const app = express(); 
 
 // configuring all our environment variables
 dotenv.config();
+
+app.use(express.json())
 
 const router = express.Router(); 
 
@@ -44,7 +47,10 @@ router.post('/signup',async(req,res) => {
 router.post('/login',async (req,res) => {
     try{
 
+        console.log("email", req.body.email)
         const {email,password} = req.body;
+
+        console.log("email",email)
 
         // to check if somebody is signed in we need to see if their email and password is saved in our database
         // findOne method by mongoose expects an object {email:"b@example.com"} , so {email} is the shorthand for {email:email} or {email:"b@example.com"} , so be careful and only pass objects to this methods
@@ -55,7 +61,7 @@ router.post('/login',async (req,res) => {
         }
 
         // we are comparing the passwords sent in the request body with the password saved in the database;
-        const isMatch = bcrypt.compare(password,Author.password);
+        const isMatch = await bcrypt.compare(password,Author.password);
 
         if(!isMatch){
             return res.status(400).json({msg:"wrong password.."})
@@ -68,17 +74,18 @@ router.post('/login',async (req,res) => {
 
         res
             .cookie('token',token,{
-                http:true, //prevents javascript access to cookies , helps avoid XSS(cross-site scripting)
+                httpOnly:true, //prevents javascript access to cookies , helps avoid XSS(cross-site scripting)
                 // while in development this sets secure to false and in production this sets secure:true,
                 secure:process.env.NODE_ENV === 'production', //ensures cookie is only sent over http in production
-                sameSite:"strict", //prevent CSRF attacks
+                sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax", //prevent CSRF attacks
                 maxAge:7*24*60*60*1000 //1 week in milliseconds
             })
             .status(200)
-            .json({msg:"logged in successfully..",token})
+            .json({msg:"logged in successfully..",Author})
 
     }catch(err){
         res.status(500).json({msg:"internal server error.."})
+        console.error(err);
     }
 })
 
