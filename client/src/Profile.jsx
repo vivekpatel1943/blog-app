@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 function Profile(){
 
-    
     const navigate = useNavigate();
 
-    const {profile,author,blogs,interId,setInterId,deleteBlog} = useAuth(); //importing functions and states from the AuthContext
+    const {profile,author,blogs,interId,setInterId,deleteBlog,logout} = useAuth(); //importing functions and states from the AuthContext
 
     /* useEffect(() => {
         profile()
@@ -23,6 +22,9 @@ function Profile(){
 
     return (
         <div>
+            <div>
+                <button onClick={() => {logout();navigate('/login')}} >logout</button>
+            </div>
             {blogs.map((blog) => (
                 <div key={blog._id}>
                     

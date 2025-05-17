@@ -21,6 +21,8 @@ function UpdateBlog(){
         }
     });
 
+    // const originalBlog = blogs.filter((blog) => blog._id == interId);
+
     console.log(JSON.stringify(originalBlog))
 
     function handleSubmit(formData){

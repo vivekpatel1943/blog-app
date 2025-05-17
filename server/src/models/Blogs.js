@@ -23,10 +23,25 @@ const BlogSchema = new mongoose.Schema({
         type:Date,
         default:Date.now()
     },
-    LikedBy: {
-        type: Array,
-        deafault: []
-    }
+    LikedBy: [{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Authors",
+    }],
+    bookmarkedBy: [{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Authors"
+    }],
+    commentBy: [{
+        user:{
+            type : mongoose.Schema.Types.ObjectId,
+            ref:"Authors"
+        },
+        commentText:{
+            type:String,
+            required:true,
+        }
+    }]
+       
     // InteractionsId:{
     //     type:mongoose.Schema.Types.ObjectId,
     //     ref:'interactions',

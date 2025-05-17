@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 
 import Authors from './src/models/Authors.js';
 import Blogs from './src/models/Blogs.js';
-import Interactions from './src/models/Interactions.js';
+// import Interactions from './src/models/Interactions.js';
 
 import authRoutes from './src/routes/authRoutes.js';
 import authMiddleware from './src/middlewares/authMiddleware.js';
@@ -54,23 +54,7 @@ app.use(cookieParser());
 // get all the blogs
 app.get('/api/blogs',async (req,res) => {
     try{
-        const blogs = await Blogs.find()
-        blogs.forEach(async (blog) => {
-            const interactionsRes = await Interactions.findById(blog.InteractionsId)
-            console.log(interactionsRes, "this is interaction")
-        })
-            // .populate({
-            //     path : 'InteractionsId',
-            //     populate : [
-            //         {path : 'likedBy', select : 'authorname'},
-            //         {path : 'bookmarkedBy',select:'authorname'},
-            //         {path:'commentedBy.user',select:'authorname'}
-            //     ]
-            // })
-            // .populate('AuthorId','authorname');
-
-        // console.log(blogs)
-        // console.log(blogs.map((blog) => blog.InteractionsId))
+        const blogs = await Blogs.find().populate('commentBy.user','authorname').populate('AuthorId','authorname')
         res.status(200).send(blogs)
     }catch(err){
         res.status(500).json({msg:"internal server error.."})
@@ -96,23 +80,25 @@ app.post('/api/blog',authMiddleware,async (req,res) => {
             subHeading:subHeading,
             mainContent:mainContent,
             date:date,
-            InteractionsId:null,//temporarily null
+            likedBy:[],//temporarily null
+            bookmarkedBy:[],
+            commentedBy:[],
         });
 
         const savedBlog = await newBlog.save();
         
         //2.  create Interaction doc for the blog
-        const newInteraction = new Interactions({
-            BlogId : savedBlog._id,
-            likedBy : [],
-            bookmarkedBy : [],
-            commentedBy : []
-        })
+        // const newInteraction = new Interactions({
+        //     BlogId : savedBlog._id,
+        //     likedBy : [],
+        //     bookmarkedBy : [],
+        //     commentedBy : []
+        // })
 
-        const savedInteraction = await newInteraction.save();
+        // const savedInteraction = await newInteraction.save();
 
         // 3. update blog with interaction id
-        savedBlog.InteractionsId = savedInteraction._id;
+        // savedBlog.InteractionsId = savedInteraction._id;
         await savedBlog.save();
 
         res.status(200).json(savedBlog);
@@ -126,11 +112,10 @@ app.post('/api/blog',authMiddleware,async (req,res) => {
 app.get('/api/blog/:id',async(req,res) => {
     try{
         const blogId = req.params.id ;
-        const blog = await Blogs.findById(blogId);
+        const blog = await Blogs.findById(blogId).populate('AuthorId','authorname');
         if(!blog){
             return res.status(404).json({msg:"blog not found.."})
         }
-       
         res.status(200).send(blog)
     }catch(err){
         console.log(err);
@@ -138,12 +123,12 @@ app.get('/api/blog/:id',async(req,res) => {
     }
 })
 
-// see the profiile of an individual author all his posts and all,
+// see the profile of an individual author all his posts and all,
 app.get('/api/profile',authMiddleware,async (req,res) => {
     console.log(req.author)
     try{
         const author = await Authors.findById(req.author.AuthorId);
-        console.log(author)
+        console.log("author logged-in",author)
 
         // retrieving all the blogs written by the author
         console.log("author id of the dude who is logged-in",author._id)
@@ -177,6 +162,7 @@ app.patch('/api/blog/:id',authMiddleware,async (req,res) => {
         if(!blog){
             return res.status(404).json({msg:"blog not found.."})
         }
+
         console.log(blog)
 
         const {heading,subHeading,mainContent} = req.body;
@@ -206,8 +192,7 @@ app.delete('/api/blog/:id',authMiddleware,async (req,res) => {
     console.log(blog)
     
     try{
-      
-        
+
         if(!blog){
             return res.status(404).json({msg:"blog not found..."})
         }
@@ -224,55 +209,38 @@ app.delete('/api/blog/:id',authMiddleware,async (req,res) => {
 // like a blog
 app.post('/api/blog/:id/like',authMiddleware,async (req,res) => {
 
-    const blogId = req.params.id;
-    const blog = await Blogs.findById(blogId);
-    const authorId = req.author.AuthorId;
-    const author = await Authors.findById(authorId);
-
     try{
-        let interaction = await Interactions.findOne(
-            // with BlogId we identify which blog we have to make the changes to,  
-            {BlogId : blogId}
-            // $addToSet operator adds a value to an array unless the value is already present, in which case $addToSet does nothing to that array
-            // {$addToSet : {likedBy : authorId}},
-            // 'upsert' is a blend of 'update' and 'insert'. It denotes an operation in MongoDB that updates an existing document, or if the document doesn't exist, inserts a new one, and it automatically saves the updated document
-            // {new:true,upsert:true}
-        ) 
-       /*  .populate('likedBy','authorname')
-        .populate('bookmarkedBy','authorname')  
-        .populate('commentedBy.user','authorname') */
 
-        if(!interaction){
-            interaction = new Interactions({BlogId:blogId,likedBy:[]})
-            await interaction.save();
-        }
+        const blogId = req.params.id;
+        const blog = await Blogs.findById(blogId)
+        const authorId = req.author.AuthorId;
+        const author = await Authors.findById(authorId);
 
-        console.log(interaction)
-        console.log("interaction.likedBy: ",interaction.likedBy)
+        console.log("blog",blog)
 
-        const index = interaction.likedBy.findIndex(id => id.toString() === authorId.toString());
+        const index = blog.LikedBy.findIndex(id => id.toString() === authorId.toString());
 
-        console.log(index);
+        if(index == -1){
 
-        if(index === -1){
-            // user hasn't liked => add
-            interaction.likedBy.push(authorId);
+            blog.LikedBy.push(authorId);
 
-            console.log(interaction.likedBy)
+            await blog.save()
 
-            await interaction.save();
+            //  const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
 
-            return res.status(200).json({liked:true});
+            return res.status(200).json({msg:"blog has been liked successfully..",
+                blog
+            })
 
         }else{
-            // user already liked => remove
-            interaction.likedBy.splice(index,1);
-            console.log(interaction.likedBy)
-            await interaction.save();
-            return res.status(200).json({liked:false});
-        }
+            blog.LikedBy.splice(index, 1);
 
-        // res.status(200).json(interaction)
+            await blog.save()
+
+            // const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
+
+            return res.status(200).json({msg:"blog has been unliked succesfully", blog})
+        }
             
     }catch(err){
         console.error(err)
@@ -282,80 +250,150 @@ app.post('/api/blog/:id/like',authMiddleware,async (req,res) => {
 
 // bookmark a blog
 app.post('/api/blog/:id/bookmark',authMiddleware,async (req,res) => {
-    
-    const blogId = req.params.id;
-    // this is the authorId of the author who is logged in, 
-    const authorId = req.author.AuthorId;
 
     try{
-        const interaction = await Interactions.findOneAndUpdate(
-            // with the blogId we identify the blog we have to make the changes to,
-            {BlogId :blogId},
-            // $addToSet method adds a value to an array unless the value is already present in the array, in which case the method does nothing to the array, it also saves the updated document automatically
-            /* {$addToSet : {bookmarkedBy: authorId}},
-            {new : true,upsert:true} */
-        ) 
-        /* .populate('likedBy','authorname')
-        .populate('bookmarkedBy','authorname')  
-        .populate('commentedBy.user','authorname') */
+        const blogId = req.params.id;
+        // blog which has been requested to bookmark
+        const blog = await Blogs.findById(blogId);
+        // this is the authorId of the author who is logged in, 
+        const authorId = req.author.AuthorId;
+        // author logged-in
+        const author = await Authors.findById(authorId)
 
-        if(!interaction){
-            interaction = new Interactions({BlogId:blogId,bookmarkedBy:[]})
-            await interaction.save();
-        }
+        const index = blog.bookmarkedBy.findIndex((id) => id.toString() === authorId.toString());
 
-        console.log(interaction)
-        console.log("interaction.bookmarkedBy",interaction.bookmarkedBy)
-
-        const index = interaction.bookmarkedBy.findIndex((id) => id.toString() === authorId.toString());
-
-        console.log(index);
+        console.log("index",index);
 
         // index being equal to -1 will mean that the authorId doesn't exist in the interaction.bookmarkedBy array which would mean that the author hasn't bookmarked the blog,so the request is to bookmark the blog
         if(index === -1){
-            interaction.bookmarkedBy.push(authorId);
-            await interaction.save();
-            return res.status(200).json({bookmarked:true})
+            blog.bookmarkedBy.push(authorId);
+            await blog.save();
+            return res.status(200).json({msg:"blog has been bookmarked successfully",blog})
         }else{
             // index not being -1 means that the author has already liked the blog and the request is to remove the bookmark
-            interaction.bookmarkedBy.splice(index,1);
-            await interaction.save(); 
-            return res.status(200).json({bookmarked:false})
+            blog.bookmarkedBy.splice(index,1);
+            await blog.save(); 
+            return res.status(200).json({msg:"blog has been unbookmarked successfully..",blog});
         }
 
         // res.status(200).json({interaction});
     }catch(err){
-        res.status(200).json({msg:"internal server error.."})
+        res.status(500).json({msg:"internal server error.."})
     }
 })
 
 // comment a blog
 app.post('/api/blog/:id/comment',authMiddleware,async (req,res) => {
-    const blogId = req.params.id;
-    console.log(blogId)
-    const authorId = req.author.AuthorId;
-    console.log(authorId)
-    const {commentText} = req.body
-
+   
     try{
-        const interaction = await Interactions.findOneAndUpdate(
-            {BlogId: blogId},
+
+        const authorId = req.author.AuthorId;
+        console.log(authorId)
+        const author = await Authors.findById(authorId)
+        console.log("the author making the comment",author)
+        const blogId = req.params.id;
+        console.log(blogId)
+        // commentBy.user is the path to populate (i.e. inside commentBy, the user field)
+        // authorname is the projection string, you can include whatever fields you want from the Authors model,e.g. "authorname","email"
+        const blog = await Blogs.findById(blogId).populate("commentBy.user","authorname");
+       
+       
+        const {commentText} = req.body;
+
+        if(!commentText){
+            return res.status(400).json({msg:"please provide the comment text.."})
+        }
+
+        console.log("blog",blog)
+        console.log("blog.commentedBy",blog.commentBy)
+
+        blog.commentBy.push(
             {
-                // the push operator appends a specified value to an array
-                $push : {
-                    commentedBy : {
-                        user : authorId,
-                        commentText,
-                        commentedOn : new Date()
-                    }
-                }
-            },
-            {new : true , upsert : true}
-        )  
-        .populate('likedBy','authorname')
-        .populate('bookmarkedBy','authorname')  
-        .populate('commentedBy.user','authorname')   
-        res.status(200).json(interaction)
+                user : authorId,
+                commentText : commentText
+            }
+        )
+
+        console.log("blog commentator,",)
+
+        await blog.save();
+
+        const populatedBlog = await Blogs.findById(blogId).populate('commentBy.user','authorname')
+
+        res.status(200).json({msg:"comment added successfully",blog:populatedBlog})
+
+    }catch(err){
+        console.error(err)
+        res.status(500).json({msg:"internal server error.."})
+    }
+})
+
+app.patch('/api/blog/:blogId/:commentId/update', async (req,res) => {
+    try{
+        const blogId = req.params.blogId;
+        /* const blog = await Blogs.findById(blogId);
+        console.log("blog being updated",blog) */
+        const commentId = req.params.commentId;
+        console.log("id of the comment being updated",commentId);
+
+        const blog = await Blogs.findOne({"commentBy._id":commentId});
+        console.log("blog",blog)
+        const comment = blog.commentBy.filter((comment) => comment._id.toString() === commentId.toString());
+
+        console.log(" comment being updated",comment);
+
+        const {commentText} = req.body;
+
+        if(!commentText){
+            return res.status(400).json({msg:"please provide the new commentText to update the present text.."})
+        }
+
+        comment[0].commentText = commentText;
+
+        await blog.save();
+
+        res.status(200).json({msg:"comment has been updated successfully",comment})
+
+        // console.log(blog)
+    }catch(err){
+        console.error(err)
+        res.status(500).json({msg:"internal server error.."});
+    }
+})
+
+app.delete('/api/blog/:blogId/:commentId/delete',async (req,res) => {
+    try{
+        const blogId = req.params.blogId;
+        const blog = await Blogs.findById(blogId);
+        const commentId = req.params.commentId;
+        // const blog = await Blogs.findOne({"commentBy._id":commentId});
+        console.log("the blog whose comment is being deleted",blog);
+
+        // const comment = blog.commentBy.filter((comment) => comment._id.toString() === comment.toString());
+        const index = blog.commentBy.findIndex((comment) => comment._id.toString() === commentId.toString());
+
+        console.log("index of the comment being deleted",index)
+
+        if(index == -1){
+            return res.status(404).json({msg:"blog not found.."})
+        }else{
+            blog.commentBy.splice(index,1); 
+            await blog.save()
+        }
+
+        res.status(200).json({msg:"comment has been successfully deleted",blog})
+
+    }catch(err){
+        console.error(err);
+        res.status(500).json({msg:"internal server error..."})
+    }
+})
+
+app.post('/api/logout',authMiddleware,(req,res) => {
+    try{
+        // this sets a header (Set-cookie) in http response.The actual "deletion" happens in the browser when the browser receives the response-but the function itself runs asynchronously in your code. 
+        res.clearCookie('token')
+        res.status(200).json({msg:"you have been successfully logged-out."})
     }catch(err){
         res.status(500).json({msg:"internal server error.."})
     }
