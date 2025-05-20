@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Header({ author, showLoginPromptCreate, setShowLoginPromptCreate }) {
+    const navigate = useNavigate();
     return (
         <header className='bg-white shadow-md py-4 px-6 mb-8'>
             <div className='max-w-6xl mx-auto flex items-center justify-between'>

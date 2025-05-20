@@ -15,10 +15,11 @@ import LoginPromptLike from './LoginPromptLike';
 function App() {
 
   const [blogs, setBlogs] = useState([]);
+   
  
   const navigate = useNavigate();
 
-  const {/* likedBlogs,setLikedBlogs, */likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment,showLoginPromptCreate,setShowLoginPromptCreate,showLoginPromptBookmark,setShowLoginPromptBookmark,showLoginPromptLike,setShowLoginPromptLike,showLoginPromptComment,setShowLoginPromptComment,expandedBlogs,setExpandedBlogs} = useAuth();
+  const {/* likedBlogs,setLikedBlogs, */likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment,showLoginPromptCreate,setShowLoginPromptCreate,showLoginPromptBookmark,setShowLoginPromptBookmark,showLoginPromptLike,setShowLoginPromptLike,showLoginPromptComment,setShowLoginPromptComment,expandedBlogs,setExpandedBlogs,openIndividualBlog,setOpenIndividualBlog,toggleIndividualBlog} = useAuth();
 
   // we use useEffect hook when we have to interact with external systems i.e. systems outside of react
   async function getAllBlogs() {
@@ -56,7 +57,7 @@ function App() {
     setBlogs((prevBlogs) =>
       prevBlogs.map((blog) => {
         if (blog._id === blogId) {
-          return response.data.blog;
+          return response.data.updatedBlog;
         } else {
           return blog;
         }
@@ -108,8 +109,10 @@ function App() {
           return (
             <div key={blog._id}>
 
-              <h1><b>{blog.heading}</b></h1>
+              
+              <h1 onClick={() => {toggleIndividualBlog();navigate(`/blog/${blog._id}/${blog.heading}`)}}><b>{blog.heading}</b></h1>
               <h5><b>{blog.subHeading}</b></h5>
+              {console.log("individual blog open",openIndividualBlog)}
               {/* this should be a link to the author's profile and the user should be able to see all the blogs of this author*/}
              
              {/* we have populated the authorname of every blog in the getAllBlogs route in the backend (index.js) in the AuthorId path */}

@@ -10,6 +10,8 @@ import AddBlog from './AddBlog';
 import UpdateBlog from './updateBlog';
 import DeleteBlog from './deleteBlog';
 // import LandingPage from './LandingPage';
+import IndividualBlog from './IndividualBlog'; 
+
 axios.defaults.withCredentials = true;
 
 // createContext() creates a context object that lets data travel from the parent component to children component without manually passing props at every level,
@@ -34,7 +36,7 @@ export function AuthProvider({children}){
     const [showLoginPromptBookmark, setShowLoginPromptBookmark] = useState(false);
     const [showLoginPromptComment, setShowLoginPromptComment] = useState(false);
     const [expandedBlogs,setExpandedBlogs] = useState({});
-
+   const [openIndividualBlog,setOpenIndividualBlog] = useState(false);
 
     // here i will be trying to access the profile of the user who is logged-in
     const profile = async () => {
@@ -186,9 +188,15 @@ export function AuthProvider({children}){
         }
     }
 
+    const  toggleIndividualBlog = () => {
+        setOpenIndividualBlog(true);
+    
+    }
+
+
     return (
         // this provider provided by the context AuthContext helps us to make the value of user state and login function available to component which calls useContext(AuthContext), the components being represented by children
-        <AuthContext.Provider value={{author,authorId,login,profile,updateBlog,deleteBlog,blogs,interId,setInterId,deleted,setDeleted,likeBlog,bookmarkBlog,addCommentToTheBlog,updateComment,deleteComment,activeCommentBlogId,setActiveCommentBlogId,logout,allBlogs,setAllBlogs,showLoginPromptCreate,setShowLoginPromptCreate,showLoginPromptLike,setShowLoginPromptLike,showLoginPromptComment,setShowLoginPromptComment,showLoginPromptBookmark,setShowLoginPromptBookmark,expandedBlogs,setExpandedBlogs}}>
+        <AuthContext.Provider value={{author,authorId,login,profile,updateBlog,deleteBlog,blogs,interId,setInterId,deleted,setDeleted,likeBlog,bookmarkBlog,addCommentToTheBlog,updateComment,deleteComment,activeCommentBlogId,setActiveCommentBlogId,logout,allBlogs,setAllBlogs,showLoginPromptCreate,setShowLoginPromptCreate,showLoginPromptLike,setShowLoginPromptLike,showLoginPromptComment,setShowLoginPromptComment,showLoginPromptBookmark,setShowLoginPromptBookmark,expandedBlogs,setExpandedBlogs,openIndividualBlog,setOpenIndividualBlog,toggleIndividualBlog}}>
             {!loading && children}
         </AuthContext.Provider>
     )
@@ -214,6 +222,7 @@ export default function Root(){
                     <Route path='/add-blog' element={<AddBlog/>} />
                     <Route path='/update-blog' element={<UpdateBlog/>} />
                     <Route path='/delete-blog' element={<DeleteBlog/>} />
+                    <Route path='/blog/:blogId/:heading' element={<IndividualBlog/>} />
                 </Routes>
             </Router>
         </AuthProvider>

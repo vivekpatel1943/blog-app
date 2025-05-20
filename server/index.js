@@ -54,7 +54,8 @@ app.use(cookieParser());
 // get all the blogs
 app.get('/api/blogs',async (req,res) => {
     try{
-        const blogs = await Blogs.find().populate('commentBy.user','authorname').populate('AuthorId','authorname')
+        const blogs = await Blogs.find().populate('commentBy.user','authorname').populate('AuthorId','authorname');
+        console.log("all the blogs",blogs)
         res.status(200).send(blogs)
     }catch(err){
         res.status(500).json({msg:"internal server error.."})
@@ -212,13 +213,14 @@ app.post('/api/blog/:id/like',authMiddleware,async (req,res) => {
     try{
 
         const blogId = req.params.id;
-        const blog = await Blogs.findById(blogId)
+        const blog = await Blogs.findById(blogId).populate('LikedBy','authorname')
+        
         const authorId = req.author.AuthorId;
         const author = await Authors.findById(authorId);
 
         console.log("blog",blog)
 
-        const index = blog.LikedBy.findIndex(id => id.toString() === authorId.toString());
+        const index = blog.LikedBy.findIndex(id => id._id.toString() === authorId.toString());
 
         if(index == -1){
 
@@ -226,10 +228,10 @@ app.post('/api/blog/:id/like',authMiddleware,async (req,res) => {
 
             await blog.save()
 
-            //  const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
+            const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
 
             return res.status(200).json({msg:"blog has been liked successfully..",
-                blog
+                updatedBlog
             })
 
         }else{
@@ -237,9 +239,9 @@ app.post('/api/blog/:id/like',authMiddleware,async (req,res) => {
 
             await blog.save()
 
-            // const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
+            const updatedBlog = await Blogs.findById(blogId).populate("LikedBy",'authorname');
 
-            return res.status(200).json({msg:"blog has been unliked succesfully", blog})
+            return res.status(200).json({msg:"blog has been unliked succesfully", updatedBlog})
         }
             
     }catch(err){
