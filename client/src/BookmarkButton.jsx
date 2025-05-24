@@ -1,16 +1,18 @@
 import React from 'react';
+import {Bookmark} from 'lucide-react';
 
-function Bookmark({blog,authorId,author,setShowLoginPromptBookmark,handleBookmark}){
+function BookmarkBlog({blog,authorId,author,setShowLoginPromptBookmark,handleBookmark}){
+    const isBookmarked = blog?.bookmarkedBy?.includes(authorId);
     return(
-         <button className={`bookmark-button border-2 mx-2 px-2 ${blog?.bookmarkedBy?.includes(authorId) ? 'bg-green-600' : 'bg-white-200 text-black'}`} onClick={() => {
+         <button className={`text-2xl transition hover:scale-110 px-2`} onClick={() => {
                 if (!author) {
                   setShowLoginPromptBookmark(true);
                   setTimeout(() => setShowLoginPromptBookmark(false), 3000)
                 } else {
                   handleBookmark(blog._id)
                 }
-              }}>bookmark</button>
+              }}><Bookmark className={`w-8 h-8 ${isBookmarked ? 'text-black-600 fill-black-600 fill-current ' : 'text-black'}`}/></button>
     )
 }
 
-export default Bookmark;
+export default BookmarkBlog;

@@ -1,16 +1,17 @@
 import React from 'react';
+import {MessageSquareText} from 'lucide-react';
 
-function Comment({ blog, author, setShowLoginPromptComment, setActiveCommentBlogId, activeCommentBlogId }) {
+function CommentButton({ blog, author, setShowLoginPromptComment, setActiveCommentBlogId, activeCommentBlogId }) {
     return (
-        <button className='comment-button border-2 mx-2 px-2' onClick={() => {
+        <button className='text-2xl transition hover:scale-110 px-2' onClick={() => {
             if (!author) {
                 setShowLoginPromptComment(true)
                 setTimeout(() => setShowLoginPromptComment(false), 3000);
             } else {
                 setActiveCommentBlogId(activeCommentBlogId == blog._id ? null : blog._id);
             }
-        }}>comment</button>
+        }}><MessageSquareText className='w-8 h-8'/></button>
     )
 }
 
-export default Comment;
+export default CommentButton;

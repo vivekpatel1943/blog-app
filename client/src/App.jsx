@@ -1,25 +1,28 @@
-import React, { useState, useEffect,useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
 import { useAuth } from './Root';
 import AddComment from './addComment';
 import { useNavigate } from 'react-router-dom';
 import LikeButton from './LikeButton';
-import Bookmark from './BookmarkButton';
+import BookmarkBlog from './BookmarkButton';
 import Comment from './CommentButton';
 import Header from './Header';
 import LoginPromptComment from './LoginPromptComment';
 import LoginPromptBookmark from './LoginPromptBookmark';
 import LoginPromptLike from './LoginPromptLike';
+import Sidebar from './Sidebar.jsx';
+
 
 function App() {
 
   const [blogs, setBlogs] = useState([]);
-   
+  const [sidebarOpen, setSidebarOpen] = useState(true);
  
+
   const navigate = useNavigate();
 
-  const {/* likedBlogs,setLikedBlogs, */likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment,showLoginPromptCreate,setShowLoginPromptCreate,showLoginPromptBookmark,setShowLoginPromptBookmark,showLoginPromptLike,setShowLoginPromptLike,showLoginPromptComment,setShowLoginPromptComment,expandedBlogs,setExpandedBlogs,openIndividualBlog,setOpenIndividualBlog,toggleIndividualBlog} = useAuth();
+  const {/* likedBlogs,setLikedBlogs, */likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment, showLoginPromptCreate, setShowLoginPromptCreate, showLoginPromptBookmark, setShowLoginPromptBookmark, showLoginPromptLike, setShowLoginPromptLike, showLoginPromptComment, setShowLoginPromptComment, expandedBlogs, setExpandedBlogs, openIndividualBlog, setOpenIndividualBlog, toggleIndividualBlog } = useAuth();
 
   // we use useEffect hook when we have to interact with external systems i.e. systems outside of react
   async function getAllBlogs() {
@@ -87,69 +90,76 @@ function App() {
   }
 
   const handleExpandBlog = (blogId) => {
-    console.log("expanded Blogs",expandedBlogs)
+    console.log("expanded Blogs", expandedBlogs)
     setExpandedBlogs((prev) => ({
       ...prev,
-      [blogId] : !prev[blogId]
+      [blogId]: !prev[blogId]
     }));
-  }  
+  }
 
   console.log(author)
 
   return (
     <div>
-  
+
       <Header author={author} showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} />
 
       {console.log("blogs", blogs)}
-      <div className='max-w-4xl mx-auto space-y-6 px-4'>
+      <div className={`flex ${sidebarOpen && "gap-4"}  max-w-7xl mx-auto px-4 pt-32 space-x-8 ${sidebarOpen ? 'pl-52' : 'pl-24'} pr-4`}>
 
-        {blogs.map((blog) => {
-     
-          return (
-            <div key={blog._id}>
+        {/* sidebar */}
+       
 
-              
-              <h1 onClick={() => {toggleIndividualBlog();navigate(`/blog/${blog._id}/${blog.heading}`)}}><b>{blog.heading}</b></h1>
-              <h5><b>{blog.subHeading}</b></h5>
-              {console.log("individual blog open",openIndividualBlog)}
-              {/* this should be a link to the author's profile and the user should be able to see all the blogs of this author*/}
-             
-             {/* we have populated the authorname of every blog in the getAllBlogs route in the backend (index.js) in the AuthorId path */}
-            <div>author:<span className='text-blue-600' onClick={() => navigate(`/profile/${blog.AuthorId.authorname}`)}>{blog.AuthorId.authorname}</span></div>
-              
+        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        
 
-            {blog.mainContent.length >= 100 ?
-            (expandedBlogs[blog._id] ? <p>{blog.mainContent} <span onClick={()=> handleExpandBlog(blog._id)}><b>shorten</b></span></p> : <p>{blog.mainContent.substring(0,100)}<span onClick={()=> handleExpandBlog(blog._id)}><b>see full blog</b></span></p>) : <p>{blog.mainContent}</p>}
-            {console.log("maincontent",blog.mainContent.substring(0,100))}
+        <div className='flex flex-1 flex-col gap-10'>
+         
+          {blogs.map((blog) => {
 
-              {/* <button className={`like-button border-2 mx-2 px-2 ${isLiked ? 'bg-red-600' : 'bg-white'}`} onClick={() => {likeBlog(blog._id);}}>like</button> */}
+            return (
+              <div key={blog._id} className='bg-white rounded-2xl shadow-md p-6 transition-all hover:shadow-lg hover:scale-[1.01]'>
 
-              {showLoginPromptLike && (
-                <LoginPromptLike/>
-              )
-              }
+                <h1 onClick={() => { toggleIndividualBlog(); navigate(`/blog/${blog._id}/${blog.heading}`) }} className='text-2xl font-bold text-gray-800 cursor-pointer hover:underline'>{blog.heading}</h1>
+                <h5 className='text-lg font-semibold text-gray-600 mt-1'>{blog.subHeading}</h5>
+                {console.log("individual blog open", openIndividualBlog)}
+                {/* this should be a link to the author's profile and the user should be able to see all the blogs of this author*/}
 
-              <LikeButton blog={blog} authorId={authorId} author={author} setShowLoginPromptLike={setShowLoginPromptLike}  handleLike={handleLike}/>
+                {/* we have populated the authorname of every blog in the getAllBlogs route in the backend (index.js) in the AuthorId path */}
+                <div className='text-sm text-gray-500 mt-2'>author:<span className='text-blue-600 font-medium cursor-pointer hover:underline' onClick={() => navigate(`/profile/${blog.AuthorId.authorname}`)}>{blog.AuthorId.authorname}</span></div>
 
-              {showLoginPromptBookmark && (
-                <LoginPromptBookmark/>
-              )}
+                {blog.mainContent.length >= 100 ?
+                  (expandedBlogs[blog._id] ? <p className='text-gray-700 mt-3'>{blog.mainContent} <span onClick={() => handleExpandBlog(blog._id)} className='text-blue-600 cursor-pointer font-semibold hover:underline'>shorten</span></p> : <p>{blog.mainContent.substring(0, 100)}<span onClick={() => handleExpandBlog(blog._id)} className='text-blue-600 cursor-pointer font-semibold hover:underline'>see full blog</span></p>) : <p className='text-gray-700 mt-3'>{blog.mainContent}</p>}
+                {console.log("maincontent", blog.mainContent.substring(0, 100))}
 
-              <Bookmark blog={blog} authorId={authorId} author={author} setShowLoginPromptBookmark={setShowLoginPromptBookmark} handleBookmark={handleBookmark} />
+                {/* <button className={`like-button border-2 mx-2 px-2 ${isLiked ? 'bg-red-600' : 'bg-white'}`} onClick={() => {likeBlog(blog._id);}}>like</button> */}
 
-              {showLoginPromptComment && (
-                <LoginPromptComment/>
-              )}
+                {showLoginPromptLike && (
+                  <LoginPromptLike />
+                )
+                }
 
-              <Comment blog={blog} author={author} setActiveCommentBlogId={setActiveCommentBlogId} setShowLoginPromptComment={setShowLoginPromptComment} activeCommentBlogId={activeCommentBlogId}/>
+                <LikeButton blog={blog} authorId={authorId} author={author} setShowLoginPromptLike={setShowLoginPromptLike} handleLike={handleLike} />
 
-              <AddComment blogs={blogs} blogId={blog._id} onSubmit={(commentText) => {
-                addCommentToTheBlog(blog._id, commentText);
-              }} />
+                {showLoginPromptBookmark && (
+                  <LoginPromptBookmark />
+                )}
 
-            </div>)
-        })}
+                <BookmarkBlog blog={blog} authorId={authorId} author={author} setShowLoginPromptBookmark={setShowLoginPromptBookmark} handleBookmark={handleBookmark} />
+
+                {showLoginPromptComment && (
+                  <LoginPromptComment />
+                )}
+
+                <Comment blog={blog} author={author} setActiveCommentBlogId={setActiveCommentBlogId} setShowLoginPromptComment={setShowLoginPromptComment} activeCommentBlogId={activeCommentBlogId} />
+
+                <AddComment blogs={blogs} blogId={blog._id} onSubmit={(commentText) => {
+                  addCommentToTheBlog(blog._id, commentText);
+                }} />
+
+              </div>)
+          })}
+        </div>
       </div>
     </div>
   )
