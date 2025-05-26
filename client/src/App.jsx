@@ -17,7 +17,8 @@ import Sidebar from './Sidebar.jsx';
 function App() {
 
   const [blogs, setBlogs] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const [smallScreenSidebarOpen,setSmallScreenSidebarOpen] = useState(false);
  
 
   const navigate = useNavigate();
@@ -101,19 +102,16 @@ function App() {
 
   return (
     <div>
-
       <Header author={author} showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} />
 
       {console.log("blogs", blogs)}
-      <div className={`flex ${sidebarOpen && "gap-4"}  max-w-7xl mx-auto px-4 pt-32 space-x-8 ${sidebarOpen ? 'pl-52' : 'pl-24'} pr-4`}>
+      <div className={`flex ${sidebarOpen ? "gap-4" : " mt-5 gap-0 md:gap-4"}  max-w-7xl mx-auto px-4 pt-32 space-x-8 ${sidebarOpen ? 'pl-52' : 'pl-24'} pr-4`}>
 
         {/* sidebar */}
-       
-
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
 
-        <div className='flex flex-1 flex-col gap-10'>
+        <div className={`flex flex-1 flex-col gap-10`}>
          
           {blogs.map((blog) => {
 
