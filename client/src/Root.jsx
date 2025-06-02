@@ -185,6 +185,8 @@ export function AuthProvider({ children }) {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/logout`);
             console.log(response);
+            setAuthor(null);         
+            setAuthorId(null)   
             return response;
         } catch (err) {
             console.error(err);

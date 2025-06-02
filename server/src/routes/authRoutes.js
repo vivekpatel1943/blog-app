@@ -76,13 +76,12 @@ router.post('/login',async (req,res) => {
             .cookie('token',token,{
                 httpOnly:true, //prevents javascript access to cookies , helps avoid XSS(cross-site scripting)
                 // while in development this sets secure to false and in production this sets secure:true,
-                secure:process.env.NODE_ENV === 'production', //ensures cookie is only sent over http in production
+                secure:process.env.NODE_ENV === 'production', //ensures cookie is only sent over https in production
                 sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax", //prevent CSRF attacks
                 maxAge:7*24*60*60*1000 //1 week in milliseconds
             })
             .status(200)
             .json({msg:"logged in successfully..",Author})
-
     }catch(err){
         res.status(500).json({msg:"internal server error.."})
         console.error(err);

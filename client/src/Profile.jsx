@@ -21,12 +21,18 @@ function Profile() {
         navigate(-1);
     }
 
+    useEffect(() => {
+        if (!author) {
+            navigate('/')
+        }
+    }, [author, navigate])
+
     return (
         <div className='min-h-screen bg-gray-100 p-6'>
             {/* top-bar */}
             <div className='flex justify-between items-center mb-6'>
                 <button onClick={goBack} className='flex items-center gap-2 text-blue-600 hover:underline'><img src={backwardArrow} className='w-5 h-5' alt="Go Back" />Back</button>
-                <button onClick={() => { logout(); navigate('/login') }} className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow'>logout</button>
+                <button onClick={() => logout()} className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow'>logout</button>
             </div>
             {/* blogs section */}
             <div className='space-y-6'>
@@ -39,9 +45,9 @@ function Profile() {
 
                         <div className='flex gap-3'>
                             <button className='bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1 rounded' onClick={() => { select(blog._id); navigate('/update-blog') }}>update</button>
-                        <button className='bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded' onClick={() => { navigate('/delete-blog'); select(blog._id) }}>delete</button>
+                            <button className='bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded' onClick={() => { navigate('/delete-blog'); select(blog._id) }}>delete</button>
                         </div>
-                        
+
                     </div>
                 ))}
             </div>

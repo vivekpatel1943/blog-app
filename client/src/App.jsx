@@ -102,10 +102,10 @@ function App() {
 
   return (
     <div>
-      <Header author={author} showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} />
+      <Header author={author} showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
 
       {console.log("blogs", blogs)}
-      <div className={`flex ${sidebarOpen ? "gap-4" : " mt-5 gap-0 md:gap-4"}  max-w-7xl mx-auto px-4 pt-32 space-x-8 ${sidebarOpen ? 'pl-52' : 'pl-24'} pr-4`}>
+      <div className={`flex ${sidebarOpen ? "gap-4" : " mt-5 gap-0 "}  max-w-7xl mx-auto pt-32 ${sidebarOpen ? 'pl-52' : 'pl-0'}`}>
 
         {/* sidebar */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

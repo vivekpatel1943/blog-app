@@ -13,15 +13,12 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 
     return (
         <div className='flex flex-col'>
-            <button className='fixed left-5 top-25 mt-5 px-0'
+            {/* <button className='fixed left-5 top-10 z-50 px-2 py-1 mr-5 bg-white rounded-md shadow'
                 onClick={() => setSidebarOpen((prev) => !prev)}>
                 <TableOfContents />
-            </button>
-            <div className={`transition-all duration-300 ease-in-out bg-white shadow-md rounded-xl p-4 flex flex-col gap-10 ${sidebarOpen ? 'flex w-screen h-full fixed inset-0 z-50 md:w-48' : 'w-0 h-screen md:flex md:w-20 '} md:fixed md:left-0 md:top-35 ${(!sidebarOpen && !(screen.width <= 768)) && `w-0` }`}>
-                {(screen.width <= 768 && sidebarOpen) && <button
-                    onClick={() => setSidebarOpen((prev) => !prev)}>
-                    <TableOfContents />
-                </button>}
+            </button> */}
+            <div className={`transition-all duration-300 ease-in-out bg-white shadow-md rounded-xl p-4 flex flex-col gap-6  z-40 ${sidebarOpen ? 'fixed top-30 left-0 h-screen w-full md:w-48 md:pt-28 pt-20' : 'hidden'} `}>
+                
                 <button onClick={() => navigate('/')} className='flex gap-2 hover:cursor-pointer'><House />{sidebarOpen && "Home"}</button>
                 <button onClick={() => navigate('/Likes')} className='flex gap-2 hover:cursor-pointer'><BookHeart />{sidebarOpen && "Likes"}</button>
                 <button onClick={() => navigate('/Bookmarks')} className='flex gap-2 hover:cursor-pointer'><BookMarked />{sidebarOpen && "Bookmarks"}</button>

@@ -47,7 +47,6 @@ function Likes() {
                             <AddComment blogs={likedBlogs} blogId={blog._id} onSubmit={(commentText) => {
                                 addCommentToTheBlog(blog._id, commentText);
                             }} />
-
                         </div>
                     )
                 })
