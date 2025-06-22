@@ -19,11 +19,10 @@ function App() {
   const [blogs, setBlogs] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // const [smallScreenSidebarOpen,setSmallScreenSidebarOpen] = useState(false);
- 
 
   const navigate = useNavigate();
 
-  const {/* likedBlogs,setLikedBlogs, */likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment, showLoginPromptCreate, setShowLoginPromptCreate, showLoginPromptBookmark, setShowLoginPromptBookmark, showLoginPromptLike, setShowLoginPromptLike, showLoginPromptComment, setShowLoginPromptComment, expandedBlogs, setExpandedBlogs, openIndividualBlog, setOpenIndividualBlog, toggleIndividualBlog } = useAuth();
+  const {likeBlog, author, authorId, bookmarkBlog, activeCommentBlogId, setActiveCommentBlogId, addCommentToTheBlog, updateComment, deleteComment, expandedBlogs, setExpandedBlogs, openIndividualBlog, setOpenIndividualBlog, toggleIndividualBlog,handleLoginPrompt,setShowLoginPrompt,showLoginPrompt } = useAuth();
 
   // we use useEffect hook when we have to interact with external systems i.e. systems outside of react
   async function getAllBlogs() {
@@ -102,7 +101,7 @@ function App() {
 
   return (
     <div>
-      <Header author={author} showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
+      <Header author={author} /* showLoginPromptCreate={showLoginPromptCreate} setShowLoginPromptCreate={setShowLoginPromptCreate} */ showLoginPrompt={showLoginPrompt} setShowLoginPrompt={setShowLoginPrompt} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
 
       {console.log("blogs", blogs)}
       <div className={`flex ${sidebarOpen ? "gap-4" : " mt-5 gap-0 "}  max-w-7xl mx-auto pt-32 ${sidebarOpen ? 'pl-52' : 'pl-0'}`}>
@@ -110,7 +109,6 @@ function App() {
         {/* sidebar */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-
         <div className={`flex flex-1 flex-col gap-10`}>
          
           {blogs.map((blog) => {
@@ -130,26 +128,27 @@ function App() {
                   (expandedBlogs[blog._id] ? <p className='text-gray-700 mt-3'>{blog.mainContent} <span onClick={() => handleExpandBlog(blog._id)} className='text-blue-600 cursor-pointer font-semibold hover:underline'>shorten</span></p> : <p>{blog.mainContent.substring(0, 100)}<span onClick={() => handleExpandBlog(blog._id)} className='text-blue-600 cursor-pointer font-semibold hover:underline'>see full blog</span></p>) : <p className='text-gray-700 mt-3'>{blog.mainContent}</p>}
                 {console.log("maincontent", blog.mainContent.substring(0, 100))}
 
-                {/* <button className={`like-button border-2 mx-2 px-2 ${isLiked ? 'bg-red-600' : 'bg-white'}`} onClick={() => {likeBlog(blog._id);}}>like</button> */}
+               
 
-                {showLoginPromptLike && (
-                  <LoginPromptLike />
-                )
-                }
+                 {(blog._id === showLoginPrompt.id && showLoginPrompt.like) && (
+                  <LoginPromptLike/>
+                )}
 
-                <LikeButton blog={blog} authorId={authorId} author={author} setShowLoginPromptLike={setShowLoginPromptLike} handleLike={handleLike} />
+           
+                <LikeButton blog={blog} authorId={authorId} author={author} setShowLoginPrompt={setShowLoginPrompt} handleLike={handleLike} />
 
-                {showLoginPromptBookmark && (
+               
+                {(showLoginPrompt.id === blog._id && showLoginPrompt.bookmark) && (
                   <LoginPromptBookmark />
                 )}
 
-                <BookmarkBlog blog={blog} authorId={authorId} author={author} setShowLoginPromptBookmark={setShowLoginPromptBookmark} handleBookmark={handleBookmark} />
+                <BookmarkBlog blog={blog} authorId={authorId} author={author} setShowLoginPrompt={setShowLoginPrompt} handleBookmark={handleBookmark} />
 
-                {showLoginPromptComment && (
+                {(blog._id === showLoginPrompt.id && showLoginPrompt.comment) && (
                   <LoginPromptComment />
                 )}
 
-                <Comment blog={blog} author={author} setActiveCommentBlogId={setActiveCommentBlogId} setShowLoginPromptComment={setShowLoginPromptComment} activeCommentBlogId={activeCommentBlogId} />
+                <Comment blog={blog} author={author} setActiveCommentBlogId={setActiveCommentBlogId} setShowLoginPrompt={setShowLoginPrompt} activeCommentBlogId={activeCommentBlogId} />
 
                 <AddComment blogs={blogs} blogId={blog._id} onSubmit={(commentText) => {
                   addCommentToTheBlog(blog._id, commentText);

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TableOfContents } from 'lucide-react';
 
-function Header({ author, showLoginPromptCreate, setShowLoginPromptCreate, sidebarOpen, setSidebarOpen }) {
+function Header({ author, showLoginPrompt, setShowLoginPrompt, sidebarOpen, setSidebarOpen }) {
     const navigate = useNavigate();
     return (
         <header className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-4 px-6'>
@@ -31,7 +31,7 @@ function Header({ author, showLoginPromptCreate, setShowLoginPromptCreate, sideb
                         </div>
                     }
 
-                    {showLoginPromptCreate && (
+                    {showLoginPrompt.create && (
                         <p className='mb-2 text-sm text-red-600 bg-red-100 px-4 py-2 rounded shadow'>
                             please login to write blog posts
                         </p>
@@ -39,8 +39,8 @@ function Header({ author, showLoginPromptCreate, setShowLoginPromptCreate, sideb
                     }
                        <button onClick={() => {
                         if (!author) {
-                            setShowLoginPromptCreate(true);
-                            setTimeout(() => setShowLoginPromptCreate(false), 3000);
+                            setShowLoginPrompt({id:null,create:true,like:false,bookmark:false,comment:false});
+                            setTimeout(() => setShowLoginPrompt({id:null,create:false,like:false,bookmark:false,comment:false}), 3000);
                         } else {
                             navigate('/add-Blog')
                         }

@@ -24,7 +24,9 @@ const AuthContext = createContext();
 // this is our provider function
 export function AuthProvider({ children }) {
     const [author, setAuthor] = useState(null);
+    // blogs by the individual logged-in author
     const [blogs, setBlogs] = useState([]);
+    // all blogs available , all the blogs written by all the authors,
     const [allBlogs, setAllBlogs] = useState([]);
     // authorId state holds the id of the person who is logged in
     const [authorId, setAuthorId] = useState(null);
@@ -34,12 +36,18 @@ export function AuthProvider({ children }) {
     const [interId, setInterId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeCommentBlogId, setActiveCommentBlogId] = useState(null);
-    const [showLoginPromptCreate, setShowLoginPromptCreate] = useState(false);
+   /*  const [showLoginPromptCreate, setShowLoginPromptCreate] = useState(false);
     const [showLoginPromptLike, setShowLoginPromptLike] = useState(false);
     const [showLoginPromptBookmark, setShowLoginPromptBookmark] = useState(false);
-    const [showLoginPromptComment, setShowLoginPromptComment] = useState(false);
+    const [showLoginPromptComment, setShowLoginPromptComment] = useState(false); */
     const [expandedBlogs, setExpandedBlogs] = useState({});
     const [openIndividualBlog, setOpenIndividualBlog] = useState(false);
+    // =======
+   /*  const [showLikeLoginPrompt,setShowLikeLoginPrompt] = useState({id : null})
+    const [showBookmarkLoginPrompt,setShowBookmarkLoginPrompt] = useState({id:null})
+    const [showCommentLoginPrompt,setShowCommentLoginPrompt] = useState({id:null}) */
+
+    const [showLoginPrompt,setShowLoginPrompt] = useState({id : null,create:false,like:false,bookmark:false,comment:false})
 
     // here i will be trying to access the profile of the user who is logged-in
     const profile = async () => {
@@ -234,16 +242,23 @@ export function AuthProvider({ children }) {
         })
     }
 
-
     const toggleIndividualBlog = () => {
         setOpenIndividualBlog(true);
 
     }
 
 
+    const handleLoginPrompt = (blogId) => {
+        allBlogs.map((blog) => {
+            if(blog.id === blogId){
+                setShowLoginPrompt({id:blogId,create:false,like:false,bookmark:false,comment:false})
+            }
+        })
+    }
+
     return (
         // this provider provided by the context AuthContext helps us to make the value of user state and login function available to component which calls useContext(AuthContext), the components being represented by children
-        <AuthContext.Provider value={{ author, authorId, login, profile, updateBlog, deleteBlog, blogs, interId, setInterId, deleted, setDeleted, likeBlog, bookmarkBlog, addCommentToTheBlog, updateComment, deleteComment, activeCommentBlogId, setActiveCommentBlogId, logout, allBlogs, setAllBlogs, showLoginPromptCreate, setShowLoginPromptCreate, showLoginPromptLike, setShowLoginPromptLike, showLoginPromptComment, setShowLoginPromptComment, showLoginPromptBookmark, setShowLoginPromptBookmark, expandedBlogs, setExpandedBlogs, openIndividualBlog, setOpenIndividualBlog, toggleIndividualBlog,handleLike,handleBookmark }}>
+        <AuthContext.Provider value={{ author, authorId, login, profile, updateBlog, deleteBlog, blogs, interId, setInterId, deleted, setDeleted, likeBlog, bookmarkBlog, addCommentToTheBlog, updateComment, deleteComment, activeCommentBlogId, setActiveCommentBlogId, logout, allBlogs, setAllBlogs, expandedBlogs, setExpandedBlogs, openIndividualBlog, setOpenIndividualBlog, toggleIndividualBlog,handleLike,handleBookmark,showLoginPrompt,setShowLoginPrompt,handleLoginPrompt }}>
             {!loading && children}
         </AuthContext.Provider>
     )

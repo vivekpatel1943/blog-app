@@ -1,13 +1,21 @@
 import React from 'react';
 import {Bookmark} from 'lucide-react';
+import { useAuth } from './Root';
 
-function BookmarkBlog({blog,authorId,author,setShowLoginPromptBookmark,handleBookmark}){
+function BookmarkBlog({blog,authorId,author,setShowLoginPrompt,handleBookmark}){
     const isBookmarked = blog?.bookmarkedBy?.includes(authorId);
+
+    const {handleLoginPrompt} = useAuth();
+
     return(
          <button className={`text-2xl transition hover:scale-110 px-2`} onClick={() => {
                 if (!author) {
-                  setShowLoginPromptBookmark(true);
-                  setTimeout(() => setShowLoginPromptBookmark(false), 3000)
+                  
+                  handleLoginPrompt(blog._id);
+                  
+                  setShowLoginPrompt({id:blog._id,create:false,like:false,bookmark:true,comment:false});
+                  
+                  setTimeout(() => setShowLoginPrompt({id:blog._id,create:false,like:false,bookmark:false,comment:false}),3000)
                 } else {
                   handleBookmark(blog._id)
                 }
