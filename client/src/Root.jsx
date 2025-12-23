@@ -36,16 +36,11 @@ export function AuthProvider({ children }) {
     const [interId, setInterId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeCommentBlogId, setActiveCommentBlogId] = useState(null);
-   /*  const [showLoginPromptCreate, setShowLoginPromptCreate] = useState(false);
-    const [showLoginPromptLike, setShowLoginPromptLike] = useState(false);
-    const [showLoginPromptBookmark, setShowLoginPromptBookmark] = useState(false);
-    const [showLoginPromptComment, setShowLoginPromptComment] = useState(false); */
+   
     const [expandedBlogs, setExpandedBlogs] = useState({});
     const [openIndividualBlog, setOpenIndividualBlog] = useState(false);
-    // =======
-   /*  const [showLikeLoginPrompt,setShowLikeLoginPrompt] = useState({id : null})
-    const [showBookmarkLoginPrompt,setShowBookmarkLoginPrompt] = useState({id:null})
-    const [showCommentLoginPrompt,setShowCommentLoginPrompt] = useState({id:null}) */
+
+   
 
     const [showLoginPrompt,setShowLoginPrompt] = useState({id : null,create:false,like:false,bookmark:false,comment:false})
 
@@ -247,7 +242,6 @@ export function AuthProvider({ children }) {
 
     }
 
-
     const handleLoginPrompt = (blogId) => {
         allBlogs.map((blog) => {
             if(blog.id === blogId){
@@ -264,7 +258,7 @@ export function AuthProvider({ children }) {
     )
 }
 
-// here useAuth is a custom hook, we are using it to export our context "authContext"
+// here useAuth is a custom hook, we are using it to export our context "AuthContext"
 // then from any other component we can import the functions,states exported by the AuthProvider function 
 // with a very simple syntax const {login,user} = useAuth();
 export function useAuth() {

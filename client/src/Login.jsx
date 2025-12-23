@@ -34,7 +34,7 @@ function Login() {
         }
     }
 
-    // well if the user is trying to login that obviously means that he is already logged-in which means that author is null/undefined basically a falsy but when the user will be logged in and the token will have been sent author will be truthy, 
+    // well if the user is trying to login that obviously means that he is not logged-in which means that author is null/undefined basically a falsy but when the user will be logged in and the token will have been sent author will be truthy, 
     useEffect(() => {
         if (author) {
             navigate('/');

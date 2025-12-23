@@ -11,8 +11,6 @@ import Blogs from './src/models/Blogs.js';
 import authRoutes from './src/routes/authRoutes.js';
 import authMiddleware from './src/middlewares/authMiddleware.js';
 
-
-
 // configuring all our environment variables
 dotenv.config();
 
@@ -35,10 +33,12 @@ const app = express();
 // all the middlewares
 app.use(cors({
     origin:"http://localhost:5173",
-    credentials:true, //this allows cookies to be sent
+    credentials:true, //this allows cookies to be sent to the backend from the browser
 }));
 
 app.use(express.json()) //this middleware makes json data available as javascript object
+
+// this allows form data to be accessed in the request body..
 app.use(express.urlencoded({ extended: true }));
 
 // routes
@@ -112,7 +112,7 @@ app.post('/api/blog',authMiddleware,async (req,res) => {
 // get an individual-blog
 app.get('/api/blog/:id',async(req,res) => {
     try{
-        const blogId = req.params.id ;
+        const blogId = req.params.id;
         const blog = await Blogs.findById(blogId).populate('AuthorId','authorname');
         if(!blog){
             return res.status(404).json({msg:"blog not found.."})
@@ -160,6 +160,7 @@ app.patch('/api/blog/:id',authMiddleware,async (req,res) => {
         const blogId = req.params.id;
         console.log(blogId)
         const blog = await Blogs.findById(blogId);
+        
         if(!blog){
             return res.status(404).json({msg:"blog not found.."})
         }

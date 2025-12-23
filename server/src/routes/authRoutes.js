@@ -34,7 +34,7 @@ router.post('/signup',async(req,res) => {
         // .save() is the method to save data in the mongodb database 
         await newAuthor.save();
 
-        res.status(200).json({msg:"author registered successfully."})
+        res.status(200).json({msg:"author registered successfully.",newAuthor});
 
     }catch(err){
         console.log(err);

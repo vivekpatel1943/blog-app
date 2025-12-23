@@ -109,7 +109,7 @@ function App() {
         {/* sidebar */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
-        <div className={`flex flex-1 flex-col gap-10`}>
+        <div className={`bg-gradient via-emerald-300 to-green-400 flex flex-1 flex-col gap-10`}>
          
           {blogs.map((blog) => {
 

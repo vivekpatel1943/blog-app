@@ -3,8 +3,8 @@ import {Bookmark} from 'lucide-react';
 import { useAuth } from './Root';
 
 function BookmarkBlog({blog,authorId,author,setShowLoginPrompt,handleBookmark}){
+    
     const isBookmarked = blog?.bookmarkedBy?.includes(authorId);
-
     const {handleLoginPrompt} = useAuth();
 
     return(
